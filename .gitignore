@@ -1,2 +1,5 @@
 # dotenv
 .env
+
+# notebook checkpoints
+.ipynb_checkpoints
