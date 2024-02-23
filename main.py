@@ -6,6 +6,9 @@ from dotenv import load_dotenv
 from sqlalchemy.inspection import inspect
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, Float, String
 
+# Global Variables 
+wallet = 10000
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -64,7 +67,7 @@ def main():
     current_datetime = datetime.now().isoformat()
 
     ## Set wallet amount
-    wallet = 10000
+    global wallet
 
     # Fetch all the data
     # Binance data
@@ -172,7 +175,7 @@ def main():
                 purchase_price = bitcoin_shares*buy_price
                 sale_price = bitcoin_shares*sell_price
                 profit = sale_price - purchase_price
-                wallet = wallet + profit
+                wallet += profit
                 wallet_balance = wallet
                 
                 insert_row = trades.insert().values(
@@ -206,7 +209,7 @@ def main():
                 purchase_price = ethereum_shares*buy_price
                 sale_price = ethereum_shares*sell_price
                 profit = sale_price - purchase_price
-                wallet = wallet + profit
+                wallet += profit
                 wallet_balance = wallet
                 
                 insert_row = trades.insert().values(
@@ -240,7 +243,7 @@ def main():
                 purchase_price = polygon_shares*buy_price
                 sale_price = polygon_shares*sell_price
                 profit = sale_price - purchase_price
-                wallet = wallet + profit
+                wallet += profit
                 wallet_balance = wallet
                 
                 insert_row = trades.insert().values(
@@ -274,7 +277,7 @@ def main():
                 purchase_price = solana_shares*buy_price
                 sale_price = solana_shares*sell_price
                 profit = sale_price - purchase_price
-                wallet = wallet + profit
+                wallet += profit
                 wallet_balance = wallet
                 
                 insert_row = trades.insert().values(
@@ -308,7 +311,7 @@ def main():
                 purchase_price = xrp_shares*buy_price
                 sale_price = xrp_shares*sell_price
                 profit = sale_price - purchase_price
-                wallet = wallet + profit
+                wallet += profit
                 wallet_balance = wallet
                 
                 insert_row = trades.insert().values(
@@ -334,6 +337,8 @@ def main():
 
 # Define a function to loop the main function
 def main_loop():
+    global wallet
+    
     try:
         while True:
             main()          
