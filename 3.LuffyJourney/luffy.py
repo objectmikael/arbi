@@ -17,7 +17,7 @@ psql_username = os.getenv('PSQL_USERNAME')
 psql_password = os.getenv('PSQL_PASSWORD')
 psql_host = os.getenv('PSQL_HOST')
 psql_port = os.getenv('PSQL_PORT')
-db_name = os.getenv('SCENARIO_ONE_DB_NAME')
+db_name = os.getenv('DB_NAME')
 
 # Define the database url
 db_url = f"postgresql://{psql_username}:{psql_password}@{psql_host}:{psql_port}/{db_name}" 
@@ -28,8 +28,8 @@ engine = create_engine(db_url)
 # Create the table schema 
 metadata = MetaData()
 
-trades = Table(
-    'trades',
+luffy = Table(
+    'luffy',
     metadata,
     Column('trade_count', Integer, primary_key=True),
     Column('current_datetime', String),
@@ -48,7 +48,7 @@ trades = Table(
 
 # Execute the table creation
 # Check if the table exist before creating
-if not inspect(engine).has_table('trades'):
+if not inspect(engine).has_table('luffy'):
     metadata.create_all(engine)
 
 # Define arbitrage function
@@ -69,6 +69,9 @@ def main():
     ## Set wallet amount
     global wallet
 
+    #####
+    #####
+    #####
     # Fetch all the data
     # Binance data
     binance_tickers = ['BTCUSDT', 'ETHUSDT', 'MATICUSDT', 'SOLUSDT', 'XRPUSDT']
@@ -135,6 +138,9 @@ def main():
         bid_price = float(api_response['bids'][0])
         poloniex_prices.append([ask_price, bid_price])
 
+    #####
+    #####
+    #####
     # Store data for easy retrival
     cryptos = ['bitcoin', 'ethereum', 'polygon', 'solana', 'xrp']
 
@@ -146,6 +152,9 @@ def main():
 
     exchanges = ['Binance', 'Bitstamp', 'Gemini', 'Kraken', 'Poloniex']
 
+    #####
+    #####
+    #####
     # Execute Trades
     # Define local variables 
     # Extract the first values from each sublist
@@ -178,7 +187,7 @@ def main():
                 wallet += profit
                 wallet_balance = wallet
                 
-                insert_row = trades.insert().values(
+                insert_row = luffy.insert().values(
                     current_datetime = current_datetime,
                     currency = cryptos[0],
                     volume = bitcoin_shares,
@@ -212,7 +221,7 @@ def main():
                 wallet += profit
                 wallet_balance = wallet
                 
-                insert_row = trades.insert().values(
+                insert_row = luffy.insert().values(
                     current_datetime = current_datetime,
                     currency = cryptos[1],
                     volume = ethereum_shares,
@@ -246,7 +255,7 @@ def main():
                 wallet += profit
                 wallet_balance = wallet
                 
-                insert_row = trades.insert().values(
+                insert_row = luffy.insert().values(
                     current_datetime = current_datetime,
                     currency = cryptos[2],
                     volume = polygon_shares,
@@ -280,7 +289,7 @@ def main():
                 wallet += profit
                 wallet_balance = wallet
                 
-                insert_row = trades.insert().values(
+                insert_row = luffy.insert().values(
                     current_datetime = current_datetime,
                     currency = cryptos[3],
                     volume = solana_shares,
@@ -314,7 +323,7 @@ def main():
                 wallet += profit
                 wallet_balance = wallet
                 
-                insert_row = trades.insert().values(
+                insert_row = luffy.insert().values(
                     current_datetime = current_datetime,
                     currency = cryptos[4],
                     volume = xrp_shares,
@@ -334,7 +343,9 @@ def main():
 
     print('Trading in progress...')
 
-
+#####
+#####
+#####
 # Define a function to loop the main function
 def main_loop():
     global wallet
@@ -346,5 +357,8 @@ def main_loop():
     except KeyboardInterrupt:
         print("Program terminated by user.")
 
-
+#####
+#####
+#####
+# Call function to run all code above
 main_loop()
