@@ -299,7 +299,7 @@ def main():
                 sale_price = xrp_shares*sell_price
                 profit = sale_price - purchase_price
                 
-                insert_row = trades.insert().values(
+                insert_row = control.insert().values(
                     current_datetime = current_datetime,
                     currency = cryptos[4],
                     volume = xrp_shares,
