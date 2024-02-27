@@ -17,7 +17,7 @@ psql_username = os.getenv('PSQL_USERNAME')
 psql_password = os.getenv('PSQL_PASSWORD')
 psql_host = os.getenv('PSQL_HOST')
 psql_port = os.getenv('PSQL_PORT')
-db_name = os.getenv('CONTROL_DB_NAME')
+db_name = os.getenv('DB_NAME')
 
 # Define the database url
 db_url = f"postgresql://{psql_username}:{psql_password}@{psql_host}:{psql_port}/{db_name}" 
@@ -28,8 +28,8 @@ engine = create_engine(db_url)
 # Create the table schema 
 metadata = MetaData()
 
-trades = Table(
-    'trades',
+control = Table(
+    'control',
     metadata,
     Column('trade_count', Integer, primary_key=True),
     Column('current_datetime', String),
@@ -42,13 +42,12 @@ trades = Table(
     Column('sell_price', Float),
     Column('total_sale_amount', Float),
     Column('profit', Float),
-    Column('spread_percentage', Float),
-    Column('wallet_balance', Float),
+    Column('spread_percentage', Float)
 )
 
 # Execute the table creation
 # Check if the table exist before creating
-if not inspect(engine).has_table('trades'):
+if not inspect(engine).has_table('control'):
     metadata.create_all(engine)
 
 # Define arbitrage function
@@ -63,12 +62,15 @@ def find_arbitrage(exchange_a, exchange_b):
 
 # Define main function
 def main():
+    ######
+    ######
+    ######
     # Set the current time
     current_datetime = datetime.now().isoformat()
 
-    ## Set wallet amount
-    global wallet
-
+    ######
+    ######
+    ######
     # Fetch all the data
     # Binance data
     binance_tickers = ['BTCUSDT', 'ETHUSDT', 'MATICUSDT', 'SOLUSDT', 'XRPUSDT']
@@ -135,6 +137,9 @@ def main():
         bid_price = float(api_response['bids'][0])
         poloniex_prices.append([ask_price, bid_price])
 
+    ######
+    ######
+    ######
     # Store data for easy retrival
     cryptos = ['bitcoin', 'ethereum', 'polygon', 'solana', 'xrp']
 
@@ -146,15 +151,9 @@ def main():
 
     exchanges = ['Binance', 'Bitstamp', 'Gemini', 'Kraken', 'Poloniex']
 
-    # Execute Trades
-    # Define local variables 
-    # # Extract the first values from each sublist
-    # bitcoin_ask_values = [sublist[0] for sublist in bitcoin_prices]
-    # ethereum_ask_values = [sublist[0] for sublist in ethereum_prices]
-    # polygon_ask_values = [sublist[0] for sublist in polygon_prices]
-    # solana_ask_values = [sublist[0] for sublist in solana_prices]
-    # xrp_ask_values = [sublist[0] for sublist in xrp_prices]
-
+    ######
+    ######
+    ######
     # Set share per coin to a unit (1 share)
     bitcoin_shares = 1
     ethereum_shares = 1
@@ -175,10 +174,8 @@ def main():
                 purchase_price = bitcoin_shares*buy_price
                 sale_price = bitcoin_shares*sell_price
                 profit = sale_price - purchase_price
-                wallet += profit
-                wallet_balance = wallet
                 
-                insert_row = trades.insert().values(
+                insert_row = control.insert().values(
                     current_datetime = current_datetime,
                     currency = cryptos[0],
                     volume = bitcoin_shares,
@@ -189,8 +186,7 @@ def main():
                     sell_price = sell_price,
                     total_sale_amount = sale_price,
                     profit = profit,
-                    spread_percentage = spread_percentage,
-                    wallet_balance = wallet_balance
+                    spread_percentage = spread_percentage
                 )
 
                 with engine.connect() as connection:
@@ -209,10 +205,8 @@ def main():
                 purchase_price = ethereum_shares*buy_price
                 sale_price = ethereum_shares*sell_price
                 profit = sale_price - purchase_price
-                wallet += profit
-                wallet_balance = wallet
                 
-                insert_row = trades.insert().values(
+                insert_row = control.insert().values(
                     current_datetime = current_datetime,
                     currency = cryptos[1],
                     volume = ethereum_shares,
@@ -223,8 +217,7 @@ def main():
                     sell_price = sell_price,
                     total_sale_amount = sale_price,
                     profit = profit,
-                    spread_percentage = spread_percentage,
-                    wallet_balance = wallet_balance
+                    spread_percentage = spread_percentage
                 )
 
                 with engine.connect() as connection:
@@ -243,10 +236,8 @@ def main():
                 purchase_price = polygon_shares*buy_price
                 sale_price = polygon_shares*sell_price
                 profit = sale_price - purchase_price
-                wallet += profit
-                wallet_balance = wallet
                 
-                insert_row = trades.insert().values(
+                insert_row = control.insert().values(
                     current_datetime = current_datetime,
                     currency = cryptos[2],
                     volume = polygon_shares,
@@ -257,8 +248,7 @@ def main():
                     sell_price = sell_price,
                     total_sale_amount = sale_price,
                     profit = profit,
-                    spread_percentage = spread_percentage,
-                    wallet_balance = wallet_balance
+                    spread_percentage = spread_percentage
                 )
 
                 with engine.connect() as connection:
@@ -277,10 +267,8 @@ def main():
                 purchase_price = solana_shares*buy_price
                 sale_price = solana_shares*sell_price
                 profit = sale_price - purchase_price
-                wallet += profit
-                wallet_balance = wallet
                 
-                insert_row = trades.insert().values(
+                insert_row = control.insert().values(
                     current_datetime = current_datetime,
                     currency = cryptos[3],
                     volume = solana_shares,
@@ -291,8 +279,7 @@ def main():
                     sell_price = sell_price,
                     total_sale_amount = sale_price,
                     profit = profit,
-                    spread_percentage = spread_percentage,
-                    wallet_balance = wallet_balance
+                    spread_percentage = spread_percentage
                 )
 
                 with engine.connect() as connection:
@@ -311,8 +298,6 @@ def main():
                 purchase_price = xrp_shares*buy_price
                 sale_price = xrp_shares*sell_price
                 profit = sale_price - purchase_price
-                wallet += profit
-                wallet_balance = wallet
                 
                 insert_row = trades.insert().values(
                     current_datetime = current_datetime,
@@ -325,8 +310,7 @@ def main():
                     sell_price = sell_price,
                     total_sale_amount = sale_price,
                     profit = profit,
-                    spread_percentage = spread_percentage,
-                    wallet_balance = wallet_balance
+                    spread_percentage = spread_percentage
                 )
 
                 with engine.connect() as connection:
@@ -334,11 +318,11 @@ def main():
 
     print('Trading in progress...')
 
-
+######
+######
+######
 # Define a function to loop the main function
-def main_loop():
-    global wallet
-    
+def main_loop():  
     try:
         while True:
             main()          
@@ -346,5 +330,8 @@ def main_loop():
     except KeyboardInterrupt:
         print("Program terminated by user.")
 
-
+######
+######
+######
+# Call function to run all code above
 main_loop()
