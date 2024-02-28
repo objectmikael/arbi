@@ -6,9 +6,6 @@ from dotenv import load_dotenv
 from sqlalchemy.inspection import inspect
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, Float, String
 
-# Global Variables 
-wallet = 0
-
 # Load environment variables from .env file
 load_dotenv()
 
@@ -59,18 +56,11 @@ def find_arbitrage(exchange_a, exchange_b):
 
     return spread_percent, ask_price_a, bid_price_b
 
-
 # Define main function
 def main():
-    ######
-    ######
-    ######
     # Set the current time
     current_datetime = datetime.now().isoformat()
 
-    ######
-    ######
-    ######
     # Fetch all the data
     # Binance data
     binance_tickers = ['BTCUSDT', 'ETHUSDT', 'MATICUSDT', 'SOLUSDT', 'XRPUSDT']
@@ -137,9 +127,6 @@ def main():
         bid_price = float(api_response['bids'][0])
         poloniex_prices.append([ask_price, bid_price])
 
-    ######
-    ######
-    ######
     # Store data for easy retrival
     cryptos = ['bitcoin', 'ethereum', 'polygon', 'solana', 'xrp']
 
@@ -151,9 +138,6 @@ def main():
 
     exchanges = ['Binance', 'Bitstamp', 'Gemini', 'Kraken', 'Poloniex']
 
-    ######
-    ######
-    ######
     # Set share per coin to a unit (1 share)
     bitcoin_shares = 1
     ethereum_shares = 1
@@ -163,164 +147,176 @@ def main():
 
     # Bitcoin Trades
     for i in range(len(bitcoin_prices)):
-        for j in range(i+1, len(bitcoin_prices)):
-            exchange_a, exchange_b = bitcoin_prices[i], bitcoin_prices[j]
-            exchange_name_a, exchange_name_b = exchanges[i], exchanges[j]
+        for j in range(len(bitcoin_prices)):
+            if i == j:
+                continue
+            else:
+                exchange_a, exchange_b = bitcoin_prices[i], bitcoin_prices[j]
+                exchange_name_a, exchange_name_b = exchanges[i], exchanges[j]
 
-            spread_percentage, buy_price, sell_price = find_arbitrage(exchange_a, exchange_b)
+                spread_percentage, buy_price, sell_price = find_arbitrage(exchange_a, exchange_b)
 
-            if spread_percentage > 0:
-                current_datetime
-                purchase_price = bitcoin_shares*buy_price
-                sale_price = bitcoin_shares*sell_price
-                profit = sale_price - purchase_price
-                
-                insert_row = control.insert().values(
-                    current_datetime = current_datetime,
-                    currency = cryptos[0],
-                    volume = bitcoin_shares,
-                    buy_exchange = exchange_name_a,
-                    buy_price = buy_price,
-                    total_purchase_amount = purchase_price,
-                    sell_exchange = exchange_name_b,
-                    sell_price = sell_price,
-                    total_sale_amount = sale_price,
-                    profit = profit,
-                    spread_percentage = spread_percentage
-                )
+                if spread_percentage > 0:
+                    current_datetime
+                    purchase_price = bitcoin_shares*buy_price
+                    sale_price = bitcoin_shares*sell_price
+                    profit = sale_price - purchase_price
+                    
+                    insert_row = control.insert().values(
+                        current_datetime = current_datetime,
+                        currency = cryptos[0],
+                        volume = bitcoin_shares,
+                        buy_exchange = exchange_name_a,
+                        buy_price = buy_price,
+                        total_purchase_amount = purchase_price,
+                        sell_exchange = exchange_name_b,
+                        sell_price = sell_price,
+                        total_sale_amount = sale_price,
+                        profit = profit,
+                        spread_percentage = spread_percentage
+                    )
 
-                with engine.connect() as connection:
-                    connection.execute(insert_row)
+                    with engine.connect() as connection:
+                        connection.execute(insert_row)
                         
     # Ethereum Trades
     for i in range(len(ethereum_prices)):
-        for j in range(i+1, len(ethereum_prices)):
-            exchange_a, exchange_b = ethereum_prices[i], ethereum_prices[j]
-            exchange_name_a, exchange_name_b = exchanges[i], exchanges[j]
+        for j in range(len(ethereum_prices)):
+            if i == j:
+                continue
+            else:
+                exchange_a, exchange_b = ethereum_prices[i], ethereum_prices[j]
+                exchange_name_a, exchange_name_b = exchanges[i], exchanges[j]
 
-            spread_percentage, buy_price, sell_price = find_arbitrage(exchange_a, exchange_b)
+                spread_percentage, buy_price, sell_price = find_arbitrage(exchange_a, exchange_b)
 
-            if spread_percentage > 0:
-                current_datetime
-                purchase_price = ethereum_shares*buy_price
-                sale_price = ethereum_shares*sell_price
-                profit = sale_price - purchase_price
-                
-                insert_row = control.insert().values(
-                    current_datetime = current_datetime,
-                    currency = cryptos[1],
-                    volume = ethereum_shares,
-                    buy_exchange = exchange_name_a,
-                    buy_price = buy_price,
-                    total_purchase_amount = purchase_price,
-                    sell_exchange = exchange_name_b,
-                    sell_price = sell_price,
-                    total_sale_amount = sale_price,
-                    profit = profit,
-                    spread_percentage = spread_percentage
-                )
+                if spread_percentage > 0:
+                    current_datetime
+                    purchase_price = ethereum_shares*buy_price
+                    sale_price = ethereum_shares*sell_price
+                    profit = sale_price - purchase_price
+                    
+                    insert_row = control.insert().values(
+                        current_datetime = current_datetime,
+                        currency = cryptos[1],
+                        volume = ethereum_shares,
+                        buy_exchange = exchange_name_a,
+                        buy_price = buy_price,
+                        total_purchase_amount = purchase_price,
+                        sell_exchange = exchange_name_b,
+                        sell_price = sell_price,
+                        total_sale_amount = sale_price,
+                        profit = profit,
+                        spread_percentage = spread_percentage
+                    )
 
-                with engine.connect() as connection:
-                    connection.execute(insert_row)
+                    with engine.connect() as connection:
+                        connection.execute(insert_row)
 
     # Polygon Trades
     for i in range(len(polygon_prices)):
-        for j in range(i+1, len(polygon_prices)):
-            exchange_a, exchange_b = polygon_prices[i], polygon_prices[j]
-            exchange_name_a, exchange_name_b = exchanges[i], exchanges[j]
+        for j in range(len(polygon_prices)):
+            if i == j:
+                continue
+            else:
+                exchange_a, exchange_b = polygon_prices[i], polygon_prices[j]
+                exchange_name_a, exchange_name_b = exchanges[i], exchanges[j]
 
-            spread_percentage, buy_price, sell_price = find_arbitrage(exchange_a, exchange_b)
+                spread_percentage, buy_price, sell_price = find_arbitrage(exchange_a, exchange_b)
 
-            if spread_percentage > 0:
-                current_datetime
-                purchase_price = polygon_shares*buy_price
-                sale_price = polygon_shares*sell_price
-                profit = sale_price - purchase_price
-                
-                insert_row = control.insert().values(
-                    current_datetime = current_datetime,
-                    currency = cryptos[2],
-                    volume = polygon_shares,
-                    buy_exchange = exchange_name_a,
-                    buy_price = buy_price,
-                    total_purchase_amount = purchase_price,
-                    sell_exchange = exchange_name_b,
-                    sell_price = sell_price,
-                    total_sale_amount = sale_price,
-                    profit = profit,
-                    spread_percentage = spread_percentage
-                )
+                if spread_percentage > 0:
+                    current_datetime
+                    purchase_price = polygon_shares*buy_price
+                    sale_price = polygon_shares*sell_price
+                    profit = sale_price - purchase_price
+                    
+                    insert_row = control.insert().values(
+                        current_datetime = current_datetime,
+                        currency = cryptos[2],
+                        volume = polygon_shares,
+                        buy_exchange = exchange_name_a,
+                        buy_price = buy_price,
+                        total_purchase_amount = purchase_price,
+                        sell_exchange = exchange_name_b,
+                        sell_price = sell_price,
+                        total_sale_amount = sale_price,
+                        profit = profit,
+                        spread_percentage = spread_percentage
+                    )
 
-                with engine.connect() as connection:
-                    connection.execute(insert_row)
+                    with engine.connect() as connection:
+                        connection.execute(insert_row)
                         
     # Solana Trades
     for i in range(len(solana_prices)):
-        for j in range(i+1, len(solana_prices)):
-            exchange_a, exchange_b = solana_prices[i], solana_prices[j]
-            exchange_name_a, exchange_name_b = exchanges[i], exchanges[j]
+        for j in range(len(solana_prices)):
+            if i == j:
+                continue
+            else:
+                exchange_a, exchange_b = solana_prices[i], solana_prices[j]
+                exchange_name_a, exchange_name_b = exchanges[i], exchanges[j]
 
-            spread_percentage, buy_price, sell_price = find_arbitrage(exchange_a, exchange_b)
+                spread_percentage, buy_price, sell_price = find_arbitrage(exchange_a, exchange_b)
 
-            if spread_percentage > 0:
-                current_datetime
-                purchase_price = solana_shares*buy_price
-                sale_price = solana_shares*sell_price
-                profit = sale_price - purchase_price
-                
-                insert_row = control.insert().values(
-                    current_datetime = current_datetime,
-                    currency = cryptos[3],
-                    volume = solana_shares,
-                    buy_exchange = exchange_name_a,
-                    buy_price = buy_price,
-                    total_purchase_amount = purchase_price,
-                    sell_exchange = exchange_name_b,
-                    sell_price = sell_price,
-                    total_sale_amount = sale_price,
-                    profit = profit,
-                    spread_percentage = spread_percentage
-                )
+                if spread_percentage > 0:
+                    current_datetime
+                    purchase_price = solana_shares*buy_price
+                    sale_price = solana_shares*sell_price
+                    profit = sale_price - purchase_price
+                    
+                    insert_row = control.insert().values(
+                        current_datetime = current_datetime,
+                        currency = cryptos[3],
+                        volume = solana_shares,
+                        buy_exchange = exchange_name_a,
+                        buy_price = buy_price,
+                        total_purchase_amount = purchase_price,
+                        sell_exchange = exchange_name_b,
+                        sell_price = sell_price,
+                        total_sale_amount = sale_price,
+                        profit = profit,
+                        spread_percentage = spread_percentage
+                    )
 
-                with engine.connect() as connection:
-                    connection.execute(insert_row)
+                    with engine.connect() as connection:
+                        connection.execute(insert_row)
 
     # XRP Trades
     for i in range(len(xrp_prices)):
-        for j in range(i+1, len(xrp_prices)):
-            exchange_a, exchange_b = xrp_prices[i], xrp_prices[j]
-            exchange_name_a, exchange_name_b = exchanges[i], exchanges[j]
+        for j in range(len(xrp_prices)):
+            if i == j:
+                continue
+            else:
+                exchange_a, exchange_b = xrp_prices[i], xrp_prices[j]
+                exchange_name_a, exchange_name_b = exchanges[i], exchanges[j]
 
-            spread_percentage, buy_price, sell_price = find_arbitrage(exchange_a, exchange_b)
+                spread_percentage, buy_price, sell_price = find_arbitrage(exchange_a, exchange_b)
 
-            if spread_percentage > 0:
-                current_datetime
-                purchase_price = xrp_shares*buy_price
-                sale_price = xrp_shares*sell_price
-                profit = sale_price - purchase_price
-                
-                insert_row = control.insert().values(
-                    current_datetime = current_datetime,
-                    currency = cryptos[4],
-                    volume = xrp_shares,
-                    buy_exchange = exchange_name_a,
-                    buy_price = buy_price,
-                    total_purchase_amount = purchase_price,
-                    sell_exchange = exchange_name_b,
-                    sell_price = sell_price,
-                    total_sale_amount = sale_price,
-                    profit = profit,
-                    spread_percentage = spread_percentage
-                )
+                if spread_percentage > 0:
+                    current_datetime
+                    purchase_price = xrp_shares*buy_price
+                    sale_price = xrp_shares*sell_price
+                    profit = sale_price - purchase_price
+                    
+                    insert_row = control.insert().values(
+                        current_datetime = current_datetime,
+                        currency = cryptos[4],
+                        volume = xrp_shares,
+                        buy_exchange = exchange_name_a,
+                        buy_price = buy_price,
+                        total_purchase_amount = purchase_price,
+                        sell_exchange = exchange_name_b,
+                        sell_price = sell_price,
+                        total_sale_amount = sale_price,
+                        profit = profit,
+                        spread_percentage = spread_percentage
+                    )
 
-                with engine.connect() as connection:
-                    connection.execute(insert_row)
+                    with engine.connect() as connection:
+                        connection.execute(insert_row)
 
     print('Trading in progress...')
 
-######
-######
-######
 # Define a function to loop the main function
 def main_loop():  
     try:
@@ -330,8 +326,5 @@ def main_loop():
     except KeyboardInterrupt:
         print("Program terminated by user.")
 
-######
-######
-######
 # Call function to run all code above
 main_loop()
