@@ -8,6 +8,9 @@ from sqlalchemy import create_engine, MetaData, Table, Column, Integer, Float, S
 
 # Global Variables 
 wallet = 10000
+transaction_fees = 0.2
+fund_allocation = [0.3, 0.1, 0.4, 0.1, 0.1]
+min_profit_threshold = 0.25
 
 # Load environment variables from .env file
 load_dotenv()
@@ -53,10 +56,11 @@ if not inspect(engine).has_table('trades'):
 
 # Define arbitrage function
 def find_arbitrage(exchange_a, exchange_b):
+    global transaction_fees
     ask_price_a = exchange_a[0]
     bid_price_b = exchange_b[1]
 
-    spread_percent = (bid_price_b - ask_price_a) / ask_price_a * 100
+    spread_percent = ((bid_price_b - ask_price_a) / ask_price_a * 100) - transaction_fees
 
     return spread_percent, ask_price_a, bid_price_b
 
@@ -68,6 +72,8 @@ def main():
 
     ## Set wallet amount
     global wallet
+    global fund_allocation
+    global min_profit_threshold
 
     # Fetch all the data
     # Binance data
@@ -156,181 +162,196 @@ def main():
     xrp_ask_values = [sublist[0] for sublist in xrp_prices]
 
     # Evenly allocate the wallet amount and determine shares based on avergae price for currency
-    bitcoin_shares = (wallet/5) / (sum(bitcoin_ask_values)/len(bitcoin_prices))
-    ethereum_shares = (wallet/5) / (sum(ethereum_ask_values)/len(ethereum_prices))
-    polygon_shares = (wallet/5) / (sum(polygon_ask_values)/len(polygon_prices))
-    solana_shares = (wallet/5) / (sum(solana_ask_values)/len(solana_prices))
-    xrp_shares = (wallet/5) / (sum(xrp_ask_values)/len(xrp_prices))
+    bitcoin_shares = (wallet*fund_allocation[0]) / (sum(bitcoin_ask_values)/len(bitcoin_prices))
+    ethereum_shares = (wallet*fund_allocation[1]) / (sum(ethereum_ask_values)/len(ethereum_prices))
+    polygon_shares = (wallet*fund_allocation[2]) / (sum(polygon_ask_values)/len(polygon_prices))
+    solana_shares = (wallet*fund_allocation[3]) / (sum(solana_ask_values)/len(solana_prices))
+    xrp_shares = (wallet*fund_allocation[4]) / (sum(xrp_ask_values)/len(xrp_prices))
 
     # Bitcoin Trades
     for i in range(len(bitcoin_prices)):
-        for j in range(i+1, len(bitcoin_prices)):
-            exchange_a, exchange_b = bitcoin_prices[i], bitcoin_prices[j]
-            exchange_name_a, exchange_name_b = exchanges[i], exchanges[j]
+        for j in range(len(bitcoin_prices)):
+            if i == j:
+                continue
+            else:
+                exchange_a, exchange_b = bitcoin_prices[i], bitcoin_prices[j]
+                exchange_name_a, exchange_name_b = exchanges[i], exchanges[j]
 
-            spread_percentage, buy_price, sell_price = find_arbitrage(exchange_a, exchange_b)
+                spread_percentage, buy_price, sell_price = find_arbitrage(exchange_a, exchange_b)
 
-            if spread_percentage > 0:
-                current_datetime
-                purchase_price = bitcoin_shares*buy_price
-                sale_price = bitcoin_shares*sell_price
-                profit = sale_price - purchase_price
-                wallet += profit
-                wallet_balance = wallet
-                
-                insert_row = trades.insert().values(
-                    current_datetime = current_datetime,
-                    currency = cryptos[0],
-                    volume = bitcoin_shares,
-                    buy_exchange = exchange_name_a,
-                    buy_price = buy_price,
-                    total_purchase_amount = purchase_price,
-                    sell_exchange = exchange_name_b,
-                    sell_price = sell_price,
-                    total_sale_amount = sale_price,
-                    profit = profit,
-                    spread_percentage = spread_percentage,
-                    wallet_balance = wallet_balance
-                )
+                if spread_percentage > 0:
+                    current_datetime
+                    purchase_price = bitcoin_shares*buy_price
+                    sale_price = bitcoin_shares*sell_price
+                    profit = sale_price - purchase_price
+                    wallet += profit
+                    wallet_balance = wallet
+                    
+                    insert_row = trades.insert().values(
+                        current_datetime = current_datetime,
+                        currency = cryptos[0],
+                        volume = bitcoin_shares,
+                        buy_exchange = exchange_name_a,
+                        buy_price = buy_price,
+                        total_purchase_amount = purchase_price,
+                        sell_exchange = exchange_name_b,
+                        sell_price = sell_price,
+                        total_sale_amount = sale_price,
+                        profit = profit,
+                        spread_percentage = spread_percentage,
+                        wallet_balance = wallet_balance
+                    )
 
-                with engine.connect() as connection:
-                    connection.execute(insert_row)
+                    with engine.connect() as connection:
+                        connection.execute(insert_row)
                         
     # Ethereum Trades
     for i in range(len(ethereum_prices)):
-        for j in range(i+1, len(ethereum_prices)):
-            exchange_a, exchange_b = ethereum_prices[i], ethereum_prices[j]
-            exchange_name_a, exchange_name_b = exchanges[i], exchanges[j]
+        for j in range(len(ethereum_prices)):
+            if i == j:
+                continue
+            else:
+                exchange_a, exchange_b = ethereum_prices[i], ethereum_prices[j]
+                exchange_name_a, exchange_name_b = exchanges[i], exchanges[j]
 
-            spread_percentage, buy_price, sell_price = find_arbitrage(exchange_a, exchange_b)
+                spread_percentage, buy_price, sell_price = find_arbitrage(exchange_a, exchange_b)
 
-            if spread_percentage > 0:
-                current_datetime
-                purchase_price = ethereum_shares*buy_price
-                sale_price = ethereum_shares*sell_price
-                profit = sale_price - purchase_price
-                wallet += profit
-                wallet_balance = wallet
-                
-                insert_row = trades.insert().values(
-                    current_datetime = current_datetime,
-                    currency = cryptos[1],
-                    volume = ethereum_shares,
-                    buy_exchange = exchange_name_a,
-                    buy_price = buy_price,
-                    total_purchase_amount = purchase_price,
-                    sell_exchange = exchange_name_b,
-                    sell_price = sell_price,
-                    total_sale_amount = sale_price,
-                    profit = profit,
-                    spread_percentage = spread_percentage,
-                    wallet_balance = wallet_balance
-                )
+                if spread_percentage > 0:
+                    current_datetime
+                    purchase_price = ethereum_shares*buy_price
+                    sale_price = ethereum_shares*sell_price
+                    profit = sale_price - purchase_price
+                    wallet += profit
+                    wallet_balance = wallet
+                    
+                    insert_row = trades.insert().values(
+                        current_datetime = current_datetime,
+                        currency = cryptos[1],
+                        volume = ethereum_shares,
+                        buy_exchange = exchange_name_a,
+                        buy_price = buy_price,
+                        total_purchase_amount = purchase_price,
+                        sell_exchange = exchange_name_b,
+                        sell_price = sell_price,
+                        total_sale_amount = sale_price,
+                        profit = profit,
+                        spread_percentage = spread_percentage,
+                        wallet_balance = wallet_balance
+                    )
 
-                with engine.connect() as connection:
-                    connection.execute(insert_row)
+                    with engine.connect() as connection:
+                        connection.execute(insert_row)
 
     # Polygon Trades
     for i in range(len(polygon_prices)):
-        for j in range(i+1, len(polygon_prices)):
-            exchange_a, exchange_b = polygon_prices[i], polygon_prices[j]
-            exchange_name_a, exchange_name_b = exchanges[i], exchanges[j]
+        for j in range(len(polygon_prices)):
+            if i == j:
+                continue
+            else:
+                exchange_a, exchange_b = polygon_prices[i], polygon_prices[j]
+                exchange_name_a, exchange_name_b = exchanges[i], exchanges[j]
 
-            spread_percentage, buy_price, sell_price = find_arbitrage(exchange_a, exchange_b)
+                spread_percentage, buy_price, sell_price = find_arbitrage(exchange_a, exchange_b)
 
-            if spread_percentage > 0:
-                current_datetime
-                purchase_price = polygon_shares*buy_price
-                sale_price = polygon_shares*sell_price
-                profit = sale_price - purchase_price
-                wallet += profit
-                wallet_balance = wallet
-                
-                insert_row = trades.insert().values(
-                    current_datetime = current_datetime,
-                    currency = cryptos[2],
-                    volume = polygon_shares,
-                    buy_exchange = exchange_name_a,
-                    buy_price = buy_price,
-                    total_purchase_amount = purchase_price,
-                    sell_exchange = exchange_name_b,
-                    sell_price = sell_price,
-                    total_sale_amount = sale_price,
-                    profit = profit,
-                    spread_percentage = spread_percentage,
-                    wallet_balance = wallet_balance
-                )
+                if spread_percentage > 0:
+                    current_datetime
+                    purchase_price = polygon_shares*buy_price
+                    sale_price = polygon_shares*sell_price
+                    profit = sale_price - purchase_price
+                    wallet += profit
+                    wallet_balance = wallet
+                    
+                    insert_row = trades.insert().values(
+                        current_datetime = current_datetime,
+                        currency = cryptos[2],
+                        volume = polygon_shares,
+                        buy_exchange = exchange_name_a,
+                        buy_price = buy_price,
+                        total_purchase_amount = purchase_price,
+                        sell_exchange = exchange_name_b,
+                        sell_price = sell_price,
+                        total_sale_amount = sale_price,
+                        profit = profit,
+                        spread_percentage = spread_percentage,
+                        wallet_balance = wallet_balance
+                    )
 
-                with engine.connect() as connection:
-                    connection.execute(insert_row)
+                    with engine.connect() as connection:
+                        connection.execute(insert_row)
                         
     # Solana Trades
     for i in range(len(solana_prices)):
-        for j in range(i+1, len(solana_prices)):
-            exchange_a, exchange_b = solana_prices[i], solana_prices[j]
-            exchange_name_a, exchange_name_b = exchanges[i], exchanges[j]
+        for j in range(len(solana_prices)):
+            if i == j:
+                continue
+            else:
+                exchange_a, exchange_b = solana_prices[i], solana_prices[j]
+                exchange_name_a, exchange_name_b = exchanges[i], exchanges[j]
 
-            spread_percentage, buy_price, sell_price = find_arbitrage(exchange_a, exchange_b)
+                spread_percentage, buy_price, sell_price = find_arbitrage(exchange_a, exchange_b)
 
-            if spread_percentage > 0:
-                current_datetime
-                purchase_price = solana_shares*buy_price
-                sale_price = solana_shares*sell_price
-                profit = sale_price - purchase_price
-                wallet += profit
-                wallet_balance = wallet
-                
-                insert_row = trades.insert().values(
-                    current_datetime = current_datetime,
-                    currency = cryptos[3],
-                    volume = solana_shares,
-                    buy_exchange = exchange_name_a,
-                    buy_price = buy_price,
-                    total_purchase_amount = purchase_price,
-                    sell_exchange = exchange_name_b,
-                    sell_price = sell_price,
-                    total_sale_amount = sale_price,
-                    profit = profit,
-                    spread_percentage = spread_percentage,
-                    wallet_balance = wallet_balance
-                )
+                if spread_percentage > 0:
+                    current_datetime
+                    purchase_price = solana_shares*buy_price
+                    sale_price = solana_shares*sell_price
+                    profit = sale_price - purchase_price
+                    wallet += profit
+                    wallet_balance = wallet
+                    
+                    insert_row = trades.insert().values(
+                        current_datetime = current_datetime,
+                        currency = cryptos[3],
+                        volume = solana_shares,
+                        buy_exchange = exchange_name_a,
+                        buy_price = buy_price,
+                        total_purchase_amount = purchase_price,
+                        sell_exchange = exchange_name_b,
+                        sell_price = sell_price,
+                        total_sale_amount = sale_price,
+                        profit = profit,
+                        spread_percentage = spread_percentage,
+                        wallet_balance = wallet_balance
+                    )
 
-                with engine.connect() as connection:
-                    connection.execute(insert_row)
+                    with engine.connect() as connection:
+                        connection.execute(insert_row)
 
     # XRP Trades
     for i in range(len(xrp_prices)):
-        for j in range(i+1, len(xrp_prices)):
-            exchange_a, exchange_b = xrp_prices[i], xrp_prices[j]
-            exchange_name_a, exchange_name_b = exchanges[i], exchanges[j]
+        for j in range(len(xrp_prices)):
+            if i == j:
+                continue
+            else:
+                exchange_a, exchange_b = xrp_prices[i], xrp_prices[j]
+                exchange_name_a, exchange_name_b = exchanges[i], exchanges[j]
 
-            spread_percentage, buy_price, sell_price = find_arbitrage(exchange_a, exchange_b)
+                spread_percentage, buy_price, sell_price = find_arbitrage(exchange_a, exchange_b)
 
-            if spread_percentage > 0:
-                current_datetime
-                purchase_price = xrp_shares*buy_price
-                sale_price = xrp_shares*sell_price
-                profit = sale_price - purchase_price
-                wallet += profit
-                wallet_balance = wallet
-                
-                insert_row = trades.insert().values(
-                    current_datetime = current_datetime,
-                    currency = cryptos[4],
-                    volume = xrp_shares,
-                    buy_exchange = exchange_name_a,
-                    buy_price = buy_price,
-                    total_purchase_amount = purchase_price,
-                    sell_exchange = exchange_name_b,
-                    sell_price = sell_price,
-                    total_sale_amount = sale_price,
-                    profit = profit,
-                    spread_percentage = spread_percentage,
-                    wallet_balance = wallet_balance
-                )
+                if spread_percentage > 0:
+                    current_datetime
+                    purchase_price = xrp_shares*buy_price
+                    sale_price = xrp_shares*sell_price
+                    profit = sale_price - purchase_price
+                    wallet += profit
+                    wallet_balance = wallet
+                    
+                    insert_row = trades.insert().values(
+                        current_datetime = current_datetime,
+                        currency = cryptos[4],
+                        volume = xrp_shares,
+                        buy_exchange = exchange_name_a,
+                        buy_price = buy_price,
+                        total_purchase_amount = purchase_price,
+                        sell_exchange = exchange_name_b,
+                        sell_price = sell_price,
+                        total_sale_amount = sale_price,
+                        profit = profit,
+                        spread_percentage = spread_percentage,
+                        wallet_balance = wallet_balance
+                    )
 
-                with engine.connect() as connection:
-                    connection.execute(insert_row)
+                    with engine.connect() as connection:
+                        connection.execute(insert_row)
 
     print('Trading in progress...')
 
@@ -346,5 +367,5 @@ def main_loop():
     except KeyboardInterrupt:
         print("Program terminated by user.")
 
-
+# Call function to run all code above
 main_loop()

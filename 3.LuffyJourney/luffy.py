@@ -9,8 +9,8 @@ from sqlalchemy import create_engine, MetaData, Table, Column, Integer, Float, S
 # Global Variables 
 wallet = 5642
 transaction_fees = 0.2
-fund_allocation = [0.2, 0.2, 0.2, 0.2, 0.2]
-min_profit_threshold = 0.1
+fund_allocation = [0.3, 0.15, 0.35, 0.05, 0.15]
+min_profit_threshold = 0.25
 
 # Load environment variables from .env file
 load_dotenv()
