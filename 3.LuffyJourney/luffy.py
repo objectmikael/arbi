@@ -8,7 +8,6 @@ from sqlalchemy import create_engine, MetaData, Table, Column, Integer, Float, S
 
 # Global Variables 
 wallet = 5642
-transaction_fees = 0.2
 fund_allocation = [0.3, 0.15, 0.35, 0.05, 0.15]
 min_profit_threshold = 0.25
 
@@ -56,11 +55,10 @@ if not inspect(engine).has_table('luffy'):
 
 # Define arbitrage function
 def find_arbitrage(exchange_a, exchange_b):
-    global transaction_fees
     ask_price_a = exchange_a[0]
     bid_price_b = exchange_b[1]
 
-    spread_percent = ((bid_price_b - ask_price_a) / ask_price_a * 100) - transaction_fees
+    spread_percent = ((bid_price_b - ask_price_a) / ask_price_a * 100)
 
     return spread_percent, ask_price_a, bid_price_b
 
@@ -74,6 +72,13 @@ def main():
     global wallet
     global fund_allocation
     global min_profit_threshold
+    profits = 0
+    spent_total = 0
+    bitcoin_wallet = wallet*fund_allocation[0]
+    ethereum_wallet = wallet*fund_allocation[1]
+    polygon_wallet = wallet*fund_allocation[2]
+    solana_wallet = wallet*fund_allocation[3]
+    xrp_wallet = wallet*fund_allocation[4]
 
     # Fetch all the data
     # Binance data
@@ -162,11 +167,11 @@ def main():
     xrp_ask_values = [sublist[0] for sublist in xrp_prices]
 
     # Evenly allocate the wallet amount and determine shares based on avergae price for currency
-    bitcoin_shares = (wallet*fund_allocation[0]) / (sum(bitcoin_ask_values)/len(bitcoin_prices))
-    ethereum_shares = (wallet*fund_allocation[1]) / (sum(ethereum_ask_values)/len(ethereum_prices))
-    polygon_shares = (wallet*fund_allocation[2]) / (sum(polygon_ask_values)/len(polygon_prices))
-    solana_shares = (wallet*fund_allocation[3]) / (sum(solana_ask_values)/len(solana_prices))
-    xrp_shares = (wallet*fund_allocation[4]) / (sum(xrp_ask_values)/len(xrp_prices))
+    bitcoin_shares = (bitcoin_wallet) / (sum(bitcoin_ask_values)/len(bitcoin_prices))
+    ethereum_shares = (ethereum_wallet) / (sum(ethereum_ask_values)/len(ethereum_prices))
+    polygon_shares = (polygon_wallet) / (sum(polygon_ask_values)/len(polygon_prices))
+    solana_shares = (solana_wallet) / (sum(solana_ask_values)/len(solana_prices))
+    xrp_shares = (xrp_wallet) / (sum(xrp_ask_values)/len(xrp_prices))
 
     # Bitcoin Trades
     for i in range(len(bitcoin_prices)):
@@ -183,27 +188,30 @@ def main():
                     current_datetime
                     purchase_price = bitcoin_shares*buy_price
                     sale_price = bitcoin_shares*sell_price
-                    profit = sale_price - purchase_price
-                    wallet += profit
-                    wallet_balance = wallet
-                    
-                    insert_row = luffy.insert().values(
-                        current_datetime = current_datetime,
-                        currency = cryptos[0],
-                        volume = bitcoin_shares,
-                        buy_exchange = exchange_name_a,
-                        buy_price = buy_price,
-                        total_purchase_amount = purchase_price,
-                        sell_exchange = exchange_name_b,
-                        sell_price = sell_price,
-                        total_sale_amount = sale_price,
-                        profit = profit,
-                        spread_percentage = spread_percentage,
-                        wallet_balance = wallet_balance
-                    )
+                    if purchase_price <= bitcoin_wallet:
+                        profit = sale_price - purchase_price
+                        profits += profit
+                        bitcoin_wallet -= purchase_price
+                        wallet -= purchase_price
+                        spent_total += purchase_price
 
-                    with engine.connect() as connection:
-                        connection.execute(insert_row)
+                        insert_row = luffy.insert().values(
+                            current_datetime = current_datetime,
+                            currency = cryptos[0],
+                            volume = bitcoin_shares,
+                            buy_exchange = exchange_name_a,
+                            buy_price = buy_price,
+                            total_purchase_amount = purchase_price,
+                            sell_exchange = exchange_name_b,
+                            sell_price = sell_price,
+                            total_sale_amount = sale_price,
+                            profit = profit,
+                            spread_percentage = spread_percentage,
+                            wallet_balance = wallet
+                        )
+
+                        with engine.connect() as connection:
+                            connection.execute(insert_row)
                         
     # Ethereum Trades
     for i in range(len(ethereum_prices)):
@@ -220,27 +228,30 @@ def main():
                     current_datetime
                     purchase_price = ethereum_shares*buy_price
                     sale_price = ethereum_shares*sell_price
-                    profit = sale_price - purchase_price
-                    wallet += profit
-                    wallet_balance = wallet
+                    if purchase_price <= ethereum_wallet:
+                        profit = sale_price - purchase_price
+                        profits += profit
+                        ethereum_wallet -= purchase_price
+                        wallet -= purchase_price
+                        spent_total += purchase_price
                     
-                    insert_row = luffy.insert().values(
-                        current_datetime = current_datetime,
-                        currency = cryptos[1],
-                        volume = ethereum_shares,
-                        buy_exchange = exchange_name_a,
-                        buy_price = buy_price,
-                        total_purchase_amount = purchase_price,
-                        sell_exchange = exchange_name_b,
-                        sell_price = sell_price,
-                        total_sale_amount = sale_price,
-                        profit = profit,
-                        spread_percentage = spread_percentage,
-                        wallet_balance = wallet_balance
-                    )
+                        insert_row = luffy.insert().values(
+                            current_datetime = current_datetime,
+                            currency = cryptos[1],
+                            volume = ethereum_shares,
+                            buy_exchange = exchange_name_a,
+                            buy_price = buy_price,
+                            total_purchase_amount = purchase_price,
+                            sell_exchange = exchange_name_b,
+                            sell_price = sell_price,
+                            total_sale_amount = sale_price,
+                            profit = profit,
+                            spread_percentage = spread_percentage,
+                            wallet_balance = wallet
+                        )
 
-                    with engine.connect() as connection:
-                        connection.execute(insert_row)
+                        with engine.connect() as connection:
+                            connection.execute(insert_row)
 
     # Polygon Trades
     for i in range(len(polygon_prices)):
@@ -257,27 +268,30 @@ def main():
                     current_datetime
                     purchase_price = polygon_shares*buy_price
                     sale_price = polygon_shares*sell_price
-                    profit = sale_price - purchase_price
-                    wallet += profit
-                    wallet_balance = wallet
+                    if purchase_price <= polygon_wallet:
+                        profit = sale_price - purchase_price
+                        profits += profit
+                        polygon_wallet -= purchase_price
+                        wallet -= purchase_price
+                        spent_total += purchase_price
                     
-                    insert_row = luffy.insert().values(
-                        current_datetime = current_datetime,
-                        currency = cryptos[2],
-                        volume = polygon_shares,
-                        buy_exchange = exchange_name_a,
-                        buy_price = buy_price,
-                        total_purchase_amount = purchase_price,
-                        sell_exchange = exchange_name_b,
-                        sell_price = sell_price,
-                        total_sale_amount = sale_price,
-                        profit = profit,
-                        spread_percentage = spread_percentage,
-                        wallet_balance = wallet_balance
-                    )
+                        insert_row = luffy.insert().values(
+                            current_datetime = current_datetime,
+                            currency = cryptos[2],
+                            volume = polygon_shares,
+                            buy_exchange = exchange_name_a,
+                            buy_price = buy_price,
+                            total_purchase_amount = purchase_price,
+                            sell_exchange = exchange_name_b,
+                            sell_price = sell_price,
+                            total_sale_amount = sale_price,
+                            profit = profit,
+                            spread_percentage = spread_percentage,
+                            wallet_balance = wallet
+                        )
 
-                    with engine.connect() as connection:
-                        connection.execute(insert_row)
+                        with engine.connect() as connection:
+                            connection.execute(insert_row)
                         
     # Solana Trades
     for i in range(len(solana_prices)):
@@ -294,27 +308,30 @@ def main():
                     current_datetime
                     purchase_price = solana_shares*buy_price
                     sale_price = solana_shares*sell_price
-                    profit = sale_price - purchase_price
-                    wallet += profit
-                    wallet_balance = wallet
-                    
-                    insert_row = luffy.insert().values(
-                        current_datetime = current_datetime,
-                        currency = cryptos[3],
-                        volume = solana_shares,
-                        buy_exchange = exchange_name_a,
-                        buy_price = buy_price,
-                        total_purchase_amount = purchase_price,
-                        sell_exchange = exchange_name_b,
-                        sell_price = sell_price,
-                        total_sale_amount = sale_price,
-                        profit = profit,
-                        spread_percentage = spread_percentage,
-                        wallet_balance = wallet_balance
-                    )
+                    if purchase_price <= solana_wallet:
+                        profit = sale_price - purchase_price
+                        profits += profit
+                        solana_wallet -= purchase_price
+                        wallet -= purchase_price
+                        spent_total += purchase_price
+                 
+                        insert_row = luffy.insert().values(
+                            current_datetime = current_datetime,
+                            currency = cryptos[3],
+                            volume = solana_shares,
+                            buy_exchange = exchange_name_a,
+                            buy_price = buy_price,
+                            total_purchase_amount = purchase_price,
+                            sell_exchange = exchange_name_b,
+                            sell_price = sell_price,
+                            total_sale_amount = sale_price,
+                            profit = profit,
+                            spread_percentage = spread_percentage,
+                            wallet_balance = wallet
+                        )
 
-                    with engine.connect() as connection:
-                        connection.execute(insert_row)
+                        with engine.connect() as connection:
+                            connection.execute(insert_row)
 
     # XRP Trades
     for i in range(len(xrp_prices)):
@@ -331,27 +348,32 @@ def main():
                     current_datetime
                     purchase_price = xrp_shares*buy_price
                     sale_price = xrp_shares*sell_price
-                    profit = sale_price - purchase_price
-                    wallet += profit
-                    wallet_balance = wallet
+                    if purchase_price <= xrp_wallet:
+                        profit = sale_price - purchase_price
+                        profits += profit
+                        xrp_wallet -= purchase_price
+                        wallet -= purchase_price
+                        spent_total += purchase_price
                     
-                    insert_row = luffy.insert().values(
-                        current_datetime = current_datetime,
-                        currency = cryptos[4],
-                        volume = xrp_shares,
-                        buy_exchange = exchange_name_a,
-                        buy_price = buy_price,
-                        total_purchase_amount = purchase_price,
-                        sell_exchange = exchange_name_b,
-                        sell_price = sell_price,
-                        total_sale_amount = sale_price,
-                        profit = profit,
-                        spread_percentage = spread_percentage,
-                        wallet_balance = wallet_balance
-                    )
+                        insert_row = luffy.insert().values(
+                            current_datetime = current_datetime,
+                            currency = cryptos[4],
+                            volume = xrp_shares,
+                            buy_exchange = exchange_name_a,
+                            buy_price = buy_price,
+                            total_purchase_amount = purchase_price,
+                            sell_exchange = exchange_name_b,
+                            sell_price = sell_price,
+                            total_sale_amount = sale_price,
+                            profit = profit,
+                            spread_percentage = spread_percentage,
+                            wallet_balance = wallet
+                        )
 
-                    with engine.connect() as connection:
-                        connection.execute(insert_row)
+                        with engine.connect() as connection:
+                            connection.execute(insert_row)
+
+    wallet = spent_total + wallet + profits
 
     print('Trading in progress...')
 
