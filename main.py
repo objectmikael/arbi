@@ -7,9 +7,9 @@ from sqlalchemy.inspection import inspect
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, Float, String
 
 # Global Variables 
-wallet = 0 #provide a dollar amount you wish to invest. Value should be an interger/float. 
-fund_allocation = [0, 0, 0, 0, 0] # provide your wallet allocation in a list in the following order [bitcoin, ethereum, polygon, solana, xrp]. Summation of allocation values should equal 1. 
-min_profit_threshold = 0 # provide a minimum profit threshold. This value will manage the size of returns you're intrested in. Value should be less than 1.   
+wallet = 3000 #provide a dollar amount you wish to invest. Value should be an interger/float. 
+fund_allocation = [0.2, 0.2, 0.3, .15, 0.15] # provide your wallet allocation in a list in the following order [bitcoin, ethereum, polygon, solana, xrp]. Summation of allocation values should equal 1. 
+min_profit_threshold = 0.25 # provide a minimum profit threshold. This value will manage the size of returns you're intrested in. Value should be less than 1.   
 
 # Load environment variables from .env file
 load_dotenv()
@@ -68,7 +68,7 @@ def main():
     # Set the current time
     current_datetime = datetime.now().isoformat()
 
-    ## Set wallet amount
+    ## Variables
     global wallet
     global fund_allocation
     global min_profit_threshold
