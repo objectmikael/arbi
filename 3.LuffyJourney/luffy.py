@@ -68,7 +68,7 @@ def main():
     # Set the current time
     current_datetime = datetime.now().isoformat()
 
-    ## Set wallet amount
+    ## Variables
     global wallet
     global fund_allocation
     global min_profit_threshold
