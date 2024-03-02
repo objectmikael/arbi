@@ -1,9 +1,13 @@
-# Arbi: A Crypto Arbitrage Platform
-![image of mascot](https://i.imgur.com/gUgE5UW.jpg)
+# Arbi: A Crypto Arbitrage Bot
+![image of mascot](https://i.imgur.com/xHsXQTCm.png?1)
 ## Overview
-Arbi helps users find profit when they invest in crypto arbitrage.  Automizing the search for arbitrage opportunities,   
+Arbi helps users find profits in the cryto market buy way of crypto arbitrage.    
 
-Arbitrage is the simultaneous purchase and sale of an asset between different markets for a profit.  
+Arbi scans multiple cryptocurrency exchanges in real-time to identify arbitrage opportunities by utilizing APIs from the exchanges to fetch live pricing data and calculate potential profits based on price differentials. 
+
+Arbi uses the following:
+- Exchanges: Binance, Bitstamp, Gemini, Kraken and Poloniex.
+- Cryptocurrencies: Bitcoin, Ethereum, Polygon, Solana, and XRP.
 
 ## Table of Contents
 links to different sections of the README 
@@ -15,64 +19,26 @@ links to different sections of the README
 - [Roadmap](#roadmap)
 
 ## Features
-- Create a list of the features: Automated arbi across multi exchanges
-- 
+- Automated arbitrage trading across multiple exchanges.
+- Customizable trading strategies and risk management.
 
 ## Getting Started
 #### Prerequisites
 
-The following installations are required in order for Arbi to work:
-
-1.  Import Requests
-    ```bash
-    import requests
-    ```
-
-2.  Import Pandas
-    ```bash
-    import pandas as pd
-    ```
-
-3.  Import OS
-    ```bash
-    import os
-    ```
-
-4.  Import Time
-    ```bash
-    import time
-    ```
-
-5.  Import Requests
-    ```bash
-    import requests
-    ```
-6.  Import Dotenv
-    ```bash
-    from dotenv import load_dotenv
-    ```
-
-7.  Import SQL Alchemy
-    ```bash
-    from sqlalchemy.inspection import inspect
-    ```
-
-8.  Import Engine Configuation
-    ```bash
-    from sqlalchemy import create_engine, MetaData, Table, Column, Integer, Float, String
-    ```
-
-9.  Install & Import Plotly
-    ```bash
-    pip install plotly
-    ```
-    Import Plotly
-    ```
-    import plotly
-    ```
-
-In addition, create a databade in postgres called arbi_db.
-
+Ensure you have the following: 
+- Anaconda Distribution - [Download Here](https://docs.anaconda.com/free/anaconda/install/)
+- Conda Dependencies 
+    - Jupyter Lab 
+        ```bash
+        conda install -c conda-forge jupyterlab
+        ```
+- Python Dependencies 
+    - Pandas, Plotly, Python-Dotenv, Requests, SQLAlchemy 
+        ```bash
+        pip install pandas plotly python-dotenv requests sqlalchemy
+        ```
+- PostgreSQL and pgAdmin (latest version) - [Download Here](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads)
+- Create a database locally using pgAdmin called ```arbi_db```
 
 #### Installation
 1.  Clone the repository
@@ -83,12 +49,69 @@ In addition, create a databade in postgres called arbi_db.
     ```bash
     cd arbi
     ```
+3. Create a file for your environment variables 
+    ```bash
+    touch .env
+    ```
+4. Open the dotenv file and add the following:
+    ```txt
+    PSQL_USERNAME = "enter your postgres username here"
+    PSQL_PASSWORD = "enter your potgres password here"
+    PSQL_HOST = "enter the server name here"
+    PSQL_PORT = "enter the port number here"
+    DB_NAME = "enter the database name here"
+    ```
 3.  Run script
     ```bash
     python main.py
     ```
+    NOTE: Remember to create a gitignore file and add the dotenv file to it before pushing your code. 
+
 ## Usage
-Explain how users can use the platform
+Repo File Structure:
+- main.py
+    - Contains the python script to execute the bot under several conditions:
+        - A wallet size. Use the variable ```wallet``` to provide a dollar amount you wish to invest. Value should be an interger/float. 
+        - An wallet allocation amount for each coin. Use the ```fund_allocation``` variable to provide your wallet allocation in a list in the following order ```[bitcoin, ethereum, polygon, solana, xrp]```. Summation of allocation values should equal 1. 
+        - A threshold value. Use the ```min_profit_threshold``` variable to provide a minimum profit threshold. This value will manage the size of returns you're intrested in. Value will help account for fees, price slippage, etc. 
+
+        The python script will create a unique table in your database. Experiement by changing the variables in the ```Global Variables``` section at the top of the script and run the bot at various times during the day to execute arbitrage opportunities and collect profits. 
+
+- pseudocode.ipynb
+    - A walkthorugh of the progression for the main script. Follow along to understand what was done, how it was done and why it was done. 
+
+- 1.Research 
+    - Contains a jupyter notebook that fetches OHLC data from each exchange via API and graphs the price of each coin over a given timeframe.
+    - The Images folder contains zoomed in snapshots of each graph to confirm the opportunity for arbitrage.  
+
+        NOTE: Each exchange uses unix time. The unix time stamp is the number of seconds ellapsed since the Unix Epoch on January 1st, 1970 at UTC. 
+
+- 2.Control
+    - The python script execute the bot under several conditions: 
+        - No fees
+        - 1 share per trade 
+        - Spread Percentage > 0, which equates to only positive returns  
+    - The jupyter notebook queries the database and displays several graphs.
+
+- 3.LuffyJourney
+    - The python script execute the bot under several conditions: 
+        - Wallet size of $5642 (10% of Avg Annual Salary in the US)
+        - Fund allocation for each coin:
+            - Bitcoin 30%
+            - Ethereum 15%
+            - Polygon 35%
+            - Solana 5%
+            - XRP 15%
+        - Spread Percentage > Minimum Profit Threshold
+            - Minimum Profit Threshold 0.25% 
+
+            NOTE: The threshold is meant to account for fees, price slippage, etc.  
 
 ## Roadmap
-outline future development plans and features 
+Our future plans include:
+- Refactor the codebase to be more efficient.
+- Implement fee structure for each exchange. 
+- Integrate with additonal exchanges and coins.
+- Integrate smart contracts.
+- Enhancing security measures. 
+
