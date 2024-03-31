@@ -1,7 +1,3 @@
-"""Databse Specific Instructions 
-
-Follow the docstring(s) below.
-"""
 import os
 from dotenv import load_dotenv
 from sqlalchemy.inspection import inspect
@@ -10,6 +6,7 @@ from sqlalchemy.exc import OperationalError, IntegrityError, DataError
 
 def create_table():
     """Create a table in a PostgreSQL database. 
+
     This function creates a table named 'trades' in a PostgreSQL database 
     using the provided environment variables for database connection details.
 
@@ -63,4 +60,11 @@ def create_table():
         return trades, engine
 
     except (OperationalError, IntegrityError, DataError) as e:
-        print(f'The following error occured in the database script: {e}')
+        # Handle database-related exceptions
+        print(f'Database operation failed: {e}')
+        return None, None
+    
+    except Exception as e:
+        # Handle other unexpected exceptions
+        print(f'An unexpected error occured: {e}')
+        return None, None

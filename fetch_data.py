@@ -1,70 +1,62 @@
-"""API Specific Instructions 
+"""Import libraries and/or dependencies.
 
-Follow the docstring(s) below.
+CCXT: 
+    - CryptoCurrency eXchange Trading is a Python library that provides a unified interface for 
+    interacting with various cryptocurrency exchanges. It allows users to access market data, 
+    execute trades, and manage accounts across multiple exchanges using a single, consistent API.   
 """
-
-import requests
 import ccxt
 
 def fetch_data():
-    """Data Collections
+    """Get data from various exchanges for different cryptocurrencies.
+
+    This function collects data for different cryptocurrencies from various exchanges
+    using the ccxt library.
+
+    Returns:
+        tuple: A tuple containing:
+            - List of cryptocurrency names
+            - List of exchange names
+            - List of lists containing prices for each cryptocurrency on each exchange
     """
+    try:
+        # Cryptocurrency names in alphabetical order
+        cryptos = ['bitcoin', 'ethereum', 'polygon', 'solana', 'xrp']
 
-    # Coin names in alphabetical order
-    cryptos = ['bitcoin', 'ethereum', 'polygon', 'solana', 'xrp']
+        # Exchange names in alphabetical order
+        exchanges = ['Binanceus', 'Bitstamp', 'Gemini', 'Kraken', 'Poloniex']
 
-    bitcoin_prices = []
-    ethereum_prices = []
-    polygon_prices = []
-    solana_prices = []
-    xrp_prices = []
-    coins_price_list = [bitcoin_prices, ethereum_prices, polygon_prices, solana_prices, xrp_prices]
+        # Initialize tickers per exchange 
+        binance_tickers = ['BTCUSDT', 'ETHUSDT', 'MATICUSDT', 'SOLUSDT', 'XRPUSDT']
+        bitstamp_tickers=['btcusd','ethusd','maticusd','solusd','xrpusd']
+        kraken_tickers = ['XBTUSDT', 'ETHUSDT', 'MATICUSDT', 'SOLUSDT', 'XRPUSDT']
+        gemini_tickers=['btcusd','ethusd','maticusd','solusd','xrpusd']
+        poloniex_tickers = ['BTC_USDT', 'ETH_USDT', 'MATIC_USDT', 'SOL_USDT', 'XRP_USDT']
 
-    # Exchange names in alphabetical order
-    exchanges = ['Binance', 'Bitstamp', 'Gemini', 'Kraken', 'Poloniex']
+        tickers_per_exchange = [binance_tickers, bitstamp_tickers, gemini_tickers, kraken_tickers,  poloniex_tickers]
 
-    # initialize exchanges with ccxt
-    binanceus_exchange = ccxt.binanceus()
-    bitstamp_exchange = ccxt.bitstamp()
-    gemini_exchange = ccxt.gemini()
-    kraken_exchange = ccxt.kraken()
-    poloniex_exchange = ccxt.poloniex()
+        exchange_prices = [[] for _ in range(len(exchanges))]
 
-    # Initialize tickers list per exchange 
-    binance_tickers = ['BTCUSDT', 'ETHUSDT', 'MATICUSDT', 'SOLUSDT', 'XRPUSDT']
-    bitstamp_tickers=['btcusd','ethusd','maticusd','solusd','xrpusd']
-    kraken_tickers = ['XBTUSDT', 'ETHUSDT', 'MATICUSDT', 'SOLUSDT', 'XRPUSDT']
-    gemini_tickers=['btcusd','ethusd','maticusd','solusd','xrpusd']
-    poloniex_tickers = ['BTC_USDT', 'ETH_USDT', 'MATIC_USDT', 'SOL_USDT', 'XRP_USDT']
+        for i, exchange_name in enumerate(exchanges):
+            exchange = getattr(ccxt, exchange_name.lower())()
+            for j, ticker in enumerate(tickers_per_exchange[i]):
+                try:
+                    ticker_data = exchange.fetch_ticker(ticker)
+                    ask_price = float(ticker_data['ask'])
+                    bid_price = float(ticker_data['bid'])
+                    exchange_prices[i].append([ask_price, bid_price])
+                except (ccxt.NetworkError, ccxt.BaseError) as e:
+                    print(f'Error occured while fetching data from {exchange_name} for {cryptos[j]}: {e}')
+                    exchange_prices[i].append([None, None])
 
-    # Initialize price lists 
-    binance_prices = []
-    poloniex_prices = []
-    kraken_prices = []
-    gemini_prices=[]
-    bitstamp_prices=[]
+        # Transpose exchange_prices to get coins_list
+        coins_price_list = list(map(list, zip(*exchange_prices)))
 
-    # All data lists 
-    exchange_init = [binanceus_exchange, bitstamp_exchange, gemini_exchange, kraken_exchange, poloniex_exchange]
-    tickers_init = [binance_tickers, bitstamp_tickers, gemini_tickers, kraken_tickers,  poloniex_tickers]
-    exchange_prices_init = [binance_prices, bitstamp_prices, gemini_prices, kraken_prices, poloniex_prices]
-
-    for i in range(len(exchanges)):
-        for j in range(len(cryptos)):
-            try:
-                ticker = exchange_init[i].fetch_ticker(tickers_init[i][j])
-                ask_price = float(ticker['ask'])
-                bid_price = float(ticker['bid'])
-                exchange_prices_init[i].append([ask_price, bid_price])
-            except (requests.exceptions.RequestException, KeyError, IndexError, ValueError) as e:
-                print(f'Error fetching data from {tickers_init[j]}: {e}')
-                exchange_prices_init[j].append([None, None])
-
-    for i in range(len(cryptos)):
-        for j in range(len(exchange_prices_init)):
-            try:
-                coins_price_list[i].append(exchange_prices_init[j][i])
-            except Exception as e:
-                print(f'The following error occured when appending coins_price_list: {e}')
+        return cryptos, exchanges, coins_price_list
     
-    return cryptos, exchanges, coins_price_list
+    except Exception as e:
+        print(f'An unexpected error occured: {e}')
+        return None, None, None
+    
+
+fetch_data()
