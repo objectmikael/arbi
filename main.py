@@ -123,7 +123,7 @@ def main_loop():
     try:
         while True:
             main()
-            time.sleep(10)
+            time.sleep(30)
     except KeyboardInterrupt:
         print("Program terminated by user.")
 
