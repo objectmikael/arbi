@@ -26,14 +26,16 @@ def find_arbitrage(exchange_a, exchange_b):
         tuple: Arbitrage spread percentage, ask price of exchange A, bid price of exchange B.
     """
     try:
-        ask_price_a = exchange_a[0]
-        bid_price_b = exchange_b[1]
+        if None not in exchange_a and None not in exchange_b:
+            ask_price_a = exchange_a[0]
+            bid_price_b = exchange_b[1]
 
-        spread_percent = ((bid_price_b - ask_price_a) / ask_price_a * 100)
+            spread_percent = ((bid_price_b - ask_price_a) / ask_price_a * 100)
 
-        return spread_percent, ask_price_a, bid_price_b
+            return spread_percent, ask_price_a, bid_price_b
     except Exception as e:
         print(f'The following error occured in the arbitrage function: {e}')
+        return None, None, None
 
 # Define main function
 def main():
@@ -67,13 +69,13 @@ def main():
                 for k, _ in enumerate(coin_list):
                     if j != k:
                         exchange_a, exchange_b = coin_list[j], coin_list[k]
-                        exchange_name_a, exchange_name_b = exchanges[j], exchanges[k]
-
-                        spread_percentage, buy_price, sell_price = find_arbitrage(exchange_a, exchange_b)
-
-                        if spread_percentage > max_spread:
-                            max_spread = spread_percentage
-                            max_spread_combination = [spread_percentage, buy_price, sell_price, exchange_name_a, exchange_name_b]
+                        if None not in exchange_a and None not in exchange_b:
+                            exchange_name_a, exchange_name_b = exchanges[j], exchanges[k]
+                            spread_percentage, buy_price, sell_price = find_arbitrage(exchange_a, exchange_b)
+                            
+                            if spread_percentage is not None and spread_percentage > max_spread:
+                                max_spread = spread_percentage
+                                max_spread_combination = [spread_percentage, buy_price, sell_price, exchange_name_a, exchange_name_b]
             
             if max_spread_combination[0] > min_profit_threshold:
                 shares = wallet_list[i] / max_spread_combination[1]
@@ -86,7 +88,7 @@ def main():
                 wallet_list[i] -= purchase_price
                 wallet -= purchase_price
                 spent_total += purchase_price
-
+                
                 # Insert trade record into database
                 insert_row = trades.insert().values(
                     current_datetime = current_datetime,
@@ -108,7 +110,7 @@ def main():
             
             max_spread = 0
             max_spread_combination = None
-
+        
         wallet = spent_total + wallet + profits
         print('Trading in progress...')
 
