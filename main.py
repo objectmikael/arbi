@@ -77,7 +77,7 @@ def main():
                                 max_spread = spread_percentage
                                 max_spread_combination = [spread_percentage, buy_price, sell_price, exchange_name_a, exchange_name_b]
             
-            if max_spread_combination[0] > min_profit_threshold:
+            if max_spread_combination is not None and max_spread_combination[0] > min_profit_threshold:
                 shares = wallet_list[i] / max_spread_combination[1]
                 purchase_price = shares*max_spread_combination[1]
                 sale_price = shares*max_spread_combination[2]
