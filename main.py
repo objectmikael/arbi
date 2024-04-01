@@ -10,8 +10,8 @@ from fetch_data import fetch_data
 
 # Global Variables
 wallet = 3000 # Dollar amount to invest.
-fund_allocation = [0.2, 0.2, 0.3, .15, 0.15] # Allocation of funds for each cryptocurrency [bitcoin, ethereum, polygon, solana, xrp]. 
-min_profit_threshold = 0 # Minimum profit threshold.
+fund_allocation = [0.2, 0.2, 0.3, .15, 0.15] # Allocation of funds for each cryptocurrency [bitcoin, ethereum, polygon, solana, xrp].
+min_profit_threshold = 0.25 # Minimum profit threshold.
 
 # Define arbitrage function
 def find_arbitrage(exchange_a, exchange_b):
@@ -74,7 +74,7 @@ def main():
                         if spread_percentage > max_spread:
                             max_spread = spread_percentage
                             max_spread_combination = [spread_percentage, buy_price, sell_price, exchange_name_a, exchange_name_b]
-
+            
             if max_spread_combination[0] > min_profit_threshold:
                 shares = wallet_list[i] / max_spread_combination[1]
                 purchase_price = shares*max_spread_combination[1]
@@ -111,6 +111,7 @@ def main():
 
         wallet = spent_total + wallet + profits
         print('Trading in progress...')
+
     except Exception as e:
         print(f'An error occured: {e}')
 
@@ -123,7 +124,7 @@ def main_loop():
     try:
         while True:
             main()
-            time.sleep(30)
+            time.sleep(5)
     except KeyboardInterrupt:
         print("Program terminated by user.")
 
