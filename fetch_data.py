@@ -6,6 +6,7 @@ CCXT:
     execute trades, and manage accounts across multiple exchanges using a single, consistent API.   
 """
 import ccxt
+import time
 
 def fetch_data():
     """Get data from various exchanges for different cryptocurrencies.
@@ -26,7 +27,7 @@ def fetch_data():
         # Exchange names in alphabetical order
         exchanges = ['Binanceus', 'Bitstamp', 'Gemini', 'Kraken', 'Poloniex']
 
-        # Initialize tickers per exchange 
+        # Initialize tickers per exchange
         binance_tickers = ['BTCUSDT', 'ETHUSDT', 'MATICUSDT', 'SOLUSDT', 'XRPUSDT']
         bitstamp_tickers=['btcusd','ethusd','maticusd','solusd','xrpusd']
         kraken_tickers = ['XBTUSDT', 'ETHUSDT', 'MATICUSDT', 'SOLUSDT', 'XRPUSDT']
@@ -53,10 +54,8 @@ def fetch_data():
         coins_price_list = list(map(list, zip(*exchange_prices)))
 
         return cryptos, exchanges, coins_price_list
-    
+        
     except Exception as e:
         print(f'An unexpected error occured: {e}')
-        return None, None, None
-    
-
-fetch_data()
+        # If an error occurs, wait five seconds before retrying
+        time.sleep(5)
