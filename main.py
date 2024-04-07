@@ -41,82 +41,85 @@ def find_arbitrage(exchange_a, exchange_b):
 def main():
     """Main function to execute cryptocurrency arbitrage.
     """
-    try:
-        # Initialize database table
-        trades, engine = create_table()
+    # Initialize database table
+    trades, engine = create_table()
 
-        # Get cryptocurrency data from exchanges
-        cryptos, exchanges, coins_price_list = fetch_data()
+    if trades is not None and engine is not None:
+        try:
 
-        # Set current datetime
-        current_datetime = datetime.now().isoformat()
+            # Get cryptocurrency data from exchanges
+            cryptos, exchanges, coins_price_list = fetch_data()
 
-        ## Variables
-        global wallet 
-        global fund_allocation
-        global min_profit_threshold
-        profits = 0
-        spent_total = 0
-        max_spread = 0
-        max_spread_combination = None
+            # Set current datetime
+            current_datetime = datetime.now().isoformat()
 
-        # Calculate wallet allocation
-        wallet_list = [wallet * allocation for allocation in fund_allocation]
-
-        # Execute Trades
-        for i, coin_list in enumerate(coins_price_list):
-            for j, _ in enumerate(coin_list):
-                for k, _ in enumerate(coin_list):
-                    if j != k:
-                        exchange_a, exchange_b = coin_list[j], coin_list[k]
-                        if None not in exchange_a and None not in exchange_b:
-                            exchange_name_a, exchange_name_b = exchanges[j], exchanges[k]
-                            spread_percentage, buy_price, sell_price = find_arbitrage(exchange_a, exchange_b)
-                            
-                            if spread_percentage is not None and spread_percentage > max_spread:
-                                max_spread = spread_percentage
-                                max_spread_combination = [spread_percentage, buy_price, sell_price, exchange_name_a, exchange_name_b]
-            
-            if max_spread_combination is not None and max_spread_combination[0] > min_profit_threshold:
-                shares = wallet_list[i] / max_spread_combination[1]
-                purchase_price = shares*max_spread_combination[1]
-                sale_price = shares*max_spread_combination[2]
-
-                # Calculate profit
-                profit = sale_price - purchase_price
-                profits += profit
-                wallet_list[i] -= purchase_price
-                wallet -= purchase_price
-                spent_total += purchase_price
-                
-                # Insert trade record into database
-                insert_row = trades.insert().values(
-                    current_datetime = current_datetime,
-                    currency = cryptos[i],
-                    volume = shares,
-                    buy_exchange = max_spread_combination[3],
-                    buy_price = max_spread_combination[1],
-                    total_purchase_amount = purchase_price,
-                    sell_exchange = max_spread_combination[4],
-                    sell_price = max_spread_combination[2],
-                    total_sale_amount = sale_price,
-                    profit = profit,
-                    spread_percentage = max_spread_combination[0],
-                    wallet_balance = wallet
-                )
-
-                with engine.connect() as connection:
-                    connection.execute(insert_row)
-            
+            ## Variables
+            global wallet 
+            global fund_allocation
+            global min_profit_threshold
+            profits = 0
+            spent_total = 0
             max_spread = 0
             max_spread_combination = None
-        
-        wallet = spent_total + wallet + profits
-        print('Trading in progress...')
 
-    except Exception as e:
-        print(f'An error occured: {e}')
+            # Calculate wallet allocation
+            wallet_list = [wallet * allocation for allocation in fund_allocation]
 
+            # Execute Trades
+            for i, coin_list in enumerate(coins_price_list):
+                for j, _ in enumerate(coin_list):
+                    for k, _ in enumerate(coin_list):
+                        if j != k:
+                            exchange_a, exchange_b = coin_list[j], coin_list[k]
+                            if None not in exchange_a and None not in exchange_b:
+                                exchange_name_a, exchange_name_b = exchanges[j], exchanges[k]
+                                spread_percentage, buy_price, sell_price = find_arbitrage(exchange_a, exchange_b)
+                                
+                                if spread_percentage is not None and spread_percentage > max_spread:
+                                    max_spread = spread_percentage
+                                    max_spread_combination = [spread_percentage, buy_price, sell_price, exchange_name_a, exchange_name_b]                          
+                
+                if max_spread_combination is not None and max_spread_combination[0] > min_profit_threshold:
+                    shares = wallet_list[i] / max_spread_combination[1]
+                    purchase_price = shares*max_spread_combination[1]
+                    sale_price = shares*max_spread_combination[2]
+
+                    # Calculate profit
+                    profit = sale_price - purchase_price
+                    profits += profit
+                    wallet_list[i] -= purchase_price
+                    wallet -= purchase_price
+                    spent_total += purchase_price
+                    
+                    # Insert trade record into database
+                    insert_row = trades.insert().values(
+                        current_datetime = current_datetime,
+                        currency = cryptos[i],
+                        volume = shares,
+                        buy_exchange = max_spread_combination[3],
+                        buy_price = max_spread_combination[1],
+                        total_purchase_amount = purchase_price,
+                        sell_exchange = max_spread_combination[4],
+                        sell_price = max_spread_combination[2],
+                        total_sale_amount = sale_price,
+                        profit = profit,
+                        spread_percentage = max_spread_combination[0],
+                        wallet_balance = wallet
+                    )
+
+                    with engine.connect() as connection:
+                        connection.execute(insert_row)
+                   
+                max_spread = 0
+                max_spread_combination = None
+
+            wallet = spent_total + wallet + profits
+            print('Trading in progress...')
+
+        except Exception as e:
+            print(f'An error occured: {e}')
+    else:
+        print("Error: Unable to execute trades. Trades or engine is None.")
 
 # Define function to continuously run the main function
 def main_loop():
