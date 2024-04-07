@@ -6,7 +6,6 @@ CCXT:
     execute trades, and manage accounts across multiple exchanges using a single, consistent API.   
 """
 import ccxt
-import time
 
 def fetch_data():
     """Get data from various exchanges for different cryptocurrencies.
@@ -57,5 +56,4 @@ def fetch_data():
         
     except Exception as e:
         print(f'An unexpected error occured: {e}')
-        # If an error occurs, wait five seconds before retrying
-        time.sleep(5)
+        return cryptos, exchanges, [[None], [None], [None], [None], [None]]
