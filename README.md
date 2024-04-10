@@ -9,6 +9,8 @@ Arbi uses the following:
 - Exchanges: Binance, Bitstamp, Gemini, Kraken and Poloniex.
 - Cryptocurrencies: Bitcoin, Ethereum, Polygon, Solana, and XRP.
 
+
+<!---
 ## Table of Contents
 links to different sections of the README 
 - [Features](#features)
@@ -134,6 +136,7 @@ By evaluating the performance of each exchange in terms of the number of trades 
 ![Avg Spread Percentage by Coin](3.LuffyJourney/Images/AvgSpreadPerCoin.png)
 We calculated the average spread percentge for each coin to identify coins with more favorable arbitrage opportunities. This helps in optimizing the selection of coins and diversifying risks. Solana performed the best with an average spread percentage of 0.76 followed by Polygon at 0.47.  
 
+--->
 
 ## Roadmap
 Our future plans include:
@@ -143,3 +146,4 @@ Our future plans include:
 - Integrate smart contracts.
 - Enhancing security measures. 
 
+## Update Coming Soon
