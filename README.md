@@ -1,16 +1,26 @@
-# Arbi: A Crypto Arbitrage Bot
+# ArbiML: A Crypto Arbitrage Bot with Machine Learning
 ![image of mascot](https://i.imgur.com/xHsXQTCm.png?1)
 ## Overview
-Arbi helps users find profits in the cryto market buy way of crypto arbitrage.    
+ArbiML integrates machine learning techniques to enhance the crypto arbitrage capabilities of the Arbi bot. Leveraging time series analysis and supervised learning models, ArbiML aims to predict profitable trades by understanding the underlying trends and patterns in cryptocurrency price data.
 
-Arbi scans multiple cryptocurrency exchanges in real-time to identify arbitrage opportunities by utilizing APIs from the exchanges to fetch live pricing data and calculate potential profits based on price differentials. 
+To identify the most profitable trades, ArbiML employs three distinct machine learning models:
+- Logistic Regression: A statistical model for binary classification.
+- Gradient Boosting: An ensemble method that builds decision trees sequentially.
+- Neural Network: A deep learning model capable of capturing complex patterns.
 
-Arbi uses the following:
-- Exchanges: Binance, Bitstamp, Gemini, Kraken and Poloniex.
-- Cryptocurrencies: Bitcoin, Ethereum, Polygon, Solana, and XRP.
+By comparing these models on a modified dataset devoid of spread percentage features, ArbiML aims to determine the model with the highest accuracy for trade prediction.
 
+> Review of Arbi V1: 
+>
+> Arbi helps users find profits in the cryto market buy way of crypto arbitrage.    
+>
+> Arbi scans multiple cryptocurrency exchanges in real-time to identify arbitrage opportunities by utilizing APIs from the exchanges to fetch live pricing data and calculate potential profits based on price differentials. 
+>
+> Arbi uses the following:
+> - Exchanges: Binance, Bitstamp, Gemini, Kraken and Poloniex.
+> - Cryptocurrencies: Bitcoin, Ethereum, Polygon, Solana, and XRP.
+>
 
-<!---
 ## Table of Contents
 links to different sections of the README 
 - [Features](#features)
@@ -24,6 +34,7 @@ links to different sections of the README
 ## Features
 - Automated arbitrage trading across multiple exchanges.
 - Customizable trading strategies and risk management.
+- Machine Learning model for enhanced capabilities. 
 
 ## Getting Started
 #### Prerequisites
@@ -80,70 +91,73 @@ Repo File Structure:
 
         The python script will create a unique table in your database. Experiement by changing the variables in the ```Global Variables``` section at the top of the script and run the bot at various times during the day to execute arbitrage opportunities and collect profits. 
 
-- pseudocode.ipynb
-    - A walkthorugh of the progression for the main script. Follow along to understand what was done, how it was done and why it was done. 
+- 1_Time Series Analysis
+    - Contains a jupyter notebook that examines time series components.
 
-- 1.Research 
-    - Contains a jupyter notebook that fetches OHLC data from each exchange via API and graphs the price of each coin over a given timeframe.
-    - The Images folder contains zoomed in snapshots of each graph to confirm the opportunity for arbitrage.  
+- 2_Statistical Learning 
+    - Contains two jupyter notebooks, one to examine a Logistic Regression Model and the other, a Gradient Boosting Model.
 
-        NOTE: Each exchange uses unix time. The unix time stamp is the number of seconds ellapsed since the Unix Epoch on January 1st, 1970 at UTC. 
+- 3_Neural Networks and Deep Learning
+    - Contains a jupyter notebook that examines a Sequential Model.
 
-- 2.Control
-    - The python script execute the bot under several conditions: 
-        - No fees
-        - 1 share per trade 
-        - Spread Percentage > 0, which equates to only positive returns  
-    - The jupyter notebook queries the database and displays several graphs.
+## Results
 
-- 3.LuffyJourney
-    - The python script execute the bot under several conditions: 
-        - Wallet size of $5642 (10% of Avg Annual Salary in the US)
-        - Fund allocation for each coin:
-            - Bitcoin 30%
-            - Ethereum 15%
-            - Polygon 35%
-            - Solana 5%
-            - XRP 15%
-        - Spread Percentage > Minimum Profit Threshold
-            - Minimum Profit Threshold 0.25% 
+**Time Series Analysis:** 
+ArbiML utilizes time series components to capture the inherent patterns in cryptocurrency prices:
+- Trend: Weekly trends over a span of 10 days.
 
-            NOTE: The threshold is meant to account for fees, price slippage, etc.  
+    ![Weekly Trend](Resources/Images/time_series_trend.png)
 
-## Results of Luffy Journey
-- Trading Window: 3 hours 
-- Trade interval: 30 seconds
-- Total Trades: 231
-- Total Profits: $926.88
+    The trend analysis highlighted weekends as the most profitable days for trading, indicating a recurring pattern that traders can leverage.
 
-**Profit Distribution** 
-![Profit Distribution](3.LuffyJourney/Images/ProfitDistribution.png)
-The distribution of profits across all trades provides insights into the consistency and variability of returns. There were 162 trades with a profit between $0 - $5 each.
+- Seasonality: Daily variations observed over a 24-hour period.
 
-**Profit Trend**
-![Profit Trend](3.LuffyJourney/Images/ProfitTrend.png)
-The examination of the 30 second trend of profits help to identify patterns and understand the overall performance of the arbitrage over time.
+    ![Weekly Trend](Resources/Images/time_series_seasonality.png)
 
-**Spread Percentage Analysis**
-![Spread Percentage vs. Profit](3.LuffyJourney/Images/SpreadvsProfit.png)
-We explored the spread percentage to understand how much profit is generated relative to the spread. This helps to access the efficieny of the arbitrage strategy. If we were to change the minimum threshold for Luffy's Journey, we can get an idea of how many trades and how much profit would be generated by following the spread percentage value. 
+    The seasonality analysis pinpointed the evening hours from 7 pm to 1 am as the most profitable time slots, offering traders a specific timeframe to focus on for maximizing arbitrage opportunities.
 
-**Exchange Performance**
-![Exchange Performance](3.LuffyJourney/Images/ExchangePerformance.png)
-By evaluating the performance of each exchange in terms of the number of trades and profit it helps in optimizing the selection of exchanges and diversifying risks. 181 trades were initiated from Poloniex and generated $435 in profits. 
 
-**Average Spread Percentage by Coin**
-![Avg Spread Percentage by Coin](3.LuffyJourney/Images/AvgSpreadPerCoin.png)
-We calculated the average spread percentge for each coin to identify coins with more favorable arbitrage opportunities. This helps in optimizing the selection of coins and diversifying risks. Solana performed the best with an average spread percentage of 0.76 followed by Polygon at 0.47.  
+**Logistic Regression:**
+The model achieved an accuracy score of 99.96%, indicating high performance in predicting profitable trades. However, it's important to remember that no model is infallible. Even with high accuracy, there's still a small risk of making trades that could result in losses.
+- Confusion Matrix: Provides a detailed breakdown of a model's predictions compared to the actual outcomes. 
 
---->
+    ![Logistic Regression Confusion Matric](Resources/Images/lr_confusion_matrix.png)
+    - **False Positives (FP):**
+        - **Advantage:** The model has zero false positives, meaning it never incorrectly labeled a non-profitable trade as profitable. This is excellent as it ensures that we avoid making trades that might cost us money.
+        - **Disadvantage:** While having no false positives is beneficial for risk mitigation, an overly cautious model might miss out on some potentially profitable trades if it's too conservative in its predictions.
+    - **False Negatives (FN):**
+        - **Advantage:** The model has only two false negatives, indicating a high accuracy in correctly identifying profitable trades.
+        - **Disadvantage:** However, false negatives mean that there were trades the model missed labeling as profitable. This could result in missed opportunities for gains.
+
+**Gradient Boosting**
+The overall accuracy of the model is 99.91%, demonstrating its effectiveness in classifying trades as profitable or non-profitable based on the provided features.
+- Confusion Matrix: Provides a detailed breakdown of a model's predictions compared to the actual outcomes.
+
+    ![Gradient Boosting Confusion Matric](Resources/Images/gb_confusion_matrix.png)
+
+    - **False Positives (FP):**
+        - **Advantage:** The model has only one false positive, indicating a high accuracy in avoiding incorrectly labeling non-profitable trades as profitable.
+        - **Disadvantage:** While minimizing false positives is beneficial for risk management, an overly cautious approach might overlook some profitable trading opportunities.
+    - **False Negatives (FN):**
+        - **Advantage:** The model has three false negatives, which is relatively low, indicating a high accuracy in identifying profitable trades.
+        - **Disadvantage:** False negatives imply that there were trades the model failed to identify as profitable, potentially leading to missed opportunities for gains.
+
+**Neural Network**
+The model achieved an accuracy of 98.88%, meaning it correctly predicted whether a trade is profitable or not in 98.88% of the cases. This high accuracy demonstrates the model's strong performance and reliability in classifying trades based on the provided features. 
+- Loss Function: 
+
+    ![Neural Network Lost Function](Resources/Images/nn_1_loss_function.png)
+
+    The model's low binary cross-entropy loss of 0.0257 indicates that the predicted probabilities for each trade being profitable are very close to the actual labels. In other words, the model's predictions are highly accurate, with minimal errors when compared to the true outcomes.
+    
+By evaluating the performance of each model in terms of its accuracy, the Logistic Regression model was first in class with 99.96% accuracy. 
+
 
 ## Roadmap
 Our future plans include:
-- Refactor the codebase to be more efficient.
-- Implement fee structure for each exchange. 
-- Integrate with additonal exchanges and coins.
+- Optimizing model performance. 
+- Incorporating additional machine learning techniques.
 - Integrate smart contracts.
 - Enhancing security measures. 
+- Implementing real-time monitoring and alerting mechanisms for timely trade execution.
 
-## Update Coming Soon
